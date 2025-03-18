@@ -25,20 +25,24 @@ public class FoodIntakeController {
     @Autowired
     private MealRepository mealRepository;
 
-    @PostMapping("/add/{userId}?{mealId}")
-    public ResponseEntity<FoodIntake> createDiet(@PathVariable Long userId, @PathVariable Long mealId) {
-        Meal meal = mealRepository.findById(mealId).get();
-        UserCalories user = userRepository.findById(userId).get();
-        if (meal == null || user == null)
+    @PostMapping("/add")
+    public ResponseEntity<FoodIntake> createDiet(@RequestParam Long userId,
+                                                 @RequestParam Long mealId) {
+        Optional<Meal> mealById = mealRepository.findById(mealId);
+        Optional<UserCalories> userById = userRepository.findById(userId);
+        if (mealById.isEmpty() || userById.isEmpty())
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-        FoodIntake foodIntake = foodIntakeRepository.findById(mealId).get();
-        if (foodIntake == null) {
+        Optional<FoodIntake> foodIntakebyId = foodIntakeRepository.findById(mealId);
+        FoodIntake foodIntake = null;
+        if (foodIntakebyId.isEmpty()) {
             foodIntake = new FoodIntake();
             foodIntake.setMeals(new ArrayList<>());
+        } else {
+            foodIntake = foodIntakebyId.get();
         }
-        foodIntake.setUser(user);
-        foodIntake.getMeals().add(meal);
+        foodIntake.setUser(userById.get());
+        foodIntake.getMeals().add(mealById.get());
         foodIntake.setDate(LocalDate.now());
         FoodIntake save = foodIntakeRepository.save(foodIntake);
         return new ResponseEntity<>(save, HttpStatus.CREATED);

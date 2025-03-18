@@ -15,7 +15,7 @@ import turulin.calorieTracker.enums.Gender;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class UserCaloriesControllerTest {
+class UserControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
